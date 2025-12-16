@@ -3,7 +3,6 @@ import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import PaymentButton from '../components/PaymentButton';
 import api from '../utils/api';
-
 const Checkout = () => {
   const { items, totalAmount } = useSelector(state => state.cart);
   const navigate = useNavigate();
@@ -18,14 +17,11 @@ const Checkout = () => {
 
   const handlePaymentSuccess = async () => {
     try {
-      // Create order after payment
       await api.post('/orders', {
         items,
         totalAmount,
         shippingAddress: address
       });
-      
-      // Clear cart & redirect
       navigate('/orders?success=true');
     } catch (error) {
       console.error('Order creation failed');
@@ -33,52 +29,52 @@ const Checkout = () => {
   };
 
   return (
-    <div className="checkout container">
-      <h1 className="mb-8">Checkout</h1>
-      
-      <div className="grid grid-cols-2 gap-12">
-        {/* Billing Address */}
+    <div className="checkout">
+      <h1>Checkout</h1>
+
+      <div className="checkout-layout">
+        {/* Shipping Address */}
         <div className="billing-section">
-          <h3 className="mb-6">Shipping Address</h3>
-          <form className="space-y-4">
+          <h3>Shipping Address</h3>
+          <form className="checkout-form">
             <input
               type="text"
               placeholder="Full Name"
               value={address.name}
-              onChange={(e) => setAddress({...address, name: e.target.value})}
-              className="input-group"
+              onChange={(e) => setAddress({ ...address, name: e.target.value })}
+              className="checkout-input"
               required
             />
             <input
               type="text"
               placeholder="Street Address"
               value={address.street}
-              onChange={(e) => setAddress({...address, street: e.target.value})}
-              className="input-group"
+              onChange={(e) => setAddress({ ...address, street: e.target.value })}
+              className="checkout-input"
               required
             />
-            <div className="grid grid-cols-2 gap-4">
+            <div className="checkout-row-2">
               <input
                 type="text"
                 placeholder="City"
                 value={address.city}
-                onChange={(e) => setAddress({...address, city: e.target.value})}
-                className="input-group"
+                onChange={(e) => setAddress({ ...address, city: e.target.value })}
+                className="checkout-input"
               />
               <input
                 type="text"
                 placeholder="Pincode"
                 value={address.pincode}
-                onChange={(e) => setAddress({...address, pincode: e.target.value})}
-                className="input-group"
+                onChange={(e) => setAddress({ ...address, pincode: e.target.value })}
+                className="checkout-input"
               />
             </div>
             <input
               type="tel"
               placeholder="Phone"
               value={address.phone}
-              onChange={(e) => setAddress({...address, phone: e.target.value})}
-              className="input-group"
+              onChange={(e) => setAddress({ ...address, phone: e.target.value })}
+              className="checkout-input"
               required
             />
           </form>
@@ -86,29 +82,29 @@ const Checkout = () => {
 
         {/* Order Summary */}
         <div className="order-summary">
-          <h3 className="mb-6">Order Summary</h3>
-          
-          <div className="summary-items space-y-3 mb-8">
+          <h3>Order Summary</h3>
+
+          <div className="summary-items">
             {items.map(item => (
-              <div key={item._id} className="flex justify-between items-center py-2">
+              <div key={item._id} className="summary-item-row">
                 <div>
                   <div>{item.name}</div>
-                  <div className="text-sm text-gray-600">Qty: {item.quantity}</div>
+                  <div className="summary-item-sub">Qty: {item.quantity}</div>
                 </div>
                 <div>₹{(item.price * item.quantity).toLocaleString()}</div>
               </div>
             ))}
           </div>
 
-          <div className="total-section border-t pt-4 space-y-2">
-            <div className="flex justify-between text-lg">
+          <div className="total-section">
+            <div className="total-section-row">
               <span>Total:</span>
               <span>₹{totalAmount.toLocaleString()}</span>
             </div>
           </div>
 
-          <PaymentButton 
-            amount={totalAmount} 
+          <PaymentButton
+            amount={totalAmount}
             onSuccess={handlePaymentSuccess}
           />
         </div>
@@ -116,5 +112,6 @@ const Checkout = () => {
     </div>
   );
 };
+
 
 export default Checkout;

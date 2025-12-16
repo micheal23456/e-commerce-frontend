@@ -27,12 +27,12 @@ const Profile = () => {
             </p>
 
             <p className="profile-row">
-              <span className="profile-row-label">Email</span>
+              <span className="profile-row-label">Email : </span>
               <span>{user?.email}</span>
             </p>
 
             <p className="profile-row">
-              <span className="profile-row-label">Role</span>
+              <span className="profile-row-label">Role : </span>
               <span
                 className={
                   'profile-role-pill ' +

@@ -1,3 +1,4 @@
+// src/pages/AdminProductsList.jsx
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../utils/api';
@@ -5,16 +6,19 @@ import api from '../utils/api';
 const AdminProductsList = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [search, setSearch] = useState('');
 
-  useEffect(() => { fetchProducts(); }, []);
+  useEffect(() => {
+    fetchProducts();
+  }, []);
 
   const fetchProducts = async () => {
     setLoading(true);
     try {
       const { data } = await api.get('/products');
       setProducts(data.products || []);
-    } catch (error) { 
-      console.error('Failed to fetch products'); 
+    } catch (error) {
+      console.error('Failed to fetch products');
       alert('Failed to load products');
     } finally {
       setLoading(false);
@@ -23,90 +27,150 @@ const AdminProductsList = () => {
 
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this product permanently?')) return;
-    
+
     try {
       await api.delete(`/products/${id}`);
       alert('✅ Product deleted!');
       fetchProducts();
     } catch (error) {
-      alert('❌ Delete failed: ' + error.response?.data?.message);
+      alert('❌ Delete failed: ' + (error.response?.data?.message || 'Error'));
     }
   };
 
-  if (loading) return <div className="container py-12 text-center">Loading products...</div>;
+  const filteredProducts = products.filter((p) => {
+    if (!search.trim()) return true;
+    const q = search.toLowerCase();
+    return (
+      p.name?.toLowerCase().includes(q) ||
+      p.brand?.toLowerCase().includes(q) ||
+      p.category?.toLowerCase().includes(q)
+    );
+  });
+
+  if (loading) {
+    return (
+      <div className="admin-products-list">
+        <div style={{ padding: '3rem 1rem', textAlign: 'center' }}>
+          Loading products...
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="admin-products-list container">
-      <div className="flex justify-between items-center mb-8">
+    <div className="admin-products-list">
+      {/* Header */}
+      <div className="admin-products-header">
         <h1>Products ({products.length})</h1>
-        <div className="flex gap-4">
-          <Link to="/admin/products/create" className="btn bg-green-500">➕ Create New</Link>
-          <Link to="/admin" className="btn btn-secondary">← Dashboard</Link>
+        <div className="admin-products-actions">
+          {/* Search with icon */}
+          <div className="admin-products-search-wrap">
+            <span className="admin-products-search-icon">🔍</span>
+            <input
+              type="text"
+              placeholder="Search by name, brand, category..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="admin-products-search"
+            />
+          </div>
+
+          <Link to="/admin/products/create" className="btn btn-green">
+            ➕ Create New
+          </Link>
+          <Link to="/admin" className="btn btn-light">
+            ← Dashboard
+          </Link>
         </div>
       </div>
 
-      {products.length === 0 ? (
-        <div className="text-center py-20 bg-gray-50 rounded-xl">
-          <p className="text-2xl text-gray-500 mb-4">No products yet 🐟</p>
-          <Link to="/admin/products/create" className="btn bg-blue-500">Create Your First Product</Link>
-        </div>
+      {/* Empty / filtered state */}
+      {filteredProducts.length === 0 ? (
+        search.trim() ? (
+          <div className="products-empty-card">
+            <p className="products-empty-title">
+              No products match “{search}”
+            </p>
+          </div>
+        ) : (
+          <div className="products-empty-card">
+            <p className="products-empty-title">No products yet 🐟</p>
+            <Link to="/admin/products/create" className="btn btn-blue">
+              Create Your First Product
+            </Link>
+          </div>
+        )
       ) : (
-        <div className="grid gap-6">
-          {products.map(product => (
-            <div key={product._id} className="product-card p-8 bg-white rounded-2xl shadow-lg border hover:shadow-2xl transition-all group">
-              <div className="flex flex-col lg:flex-row gap-6 items-start lg:items-center">
-                {/* Product Image */}
-                <div className="flex-shrink-0">
+        <div className="admin-products-list-grid">
+          {filteredProducts.map((product) => (
+            <div key={product._id} className="admin-product-card">
+              <div className="admin-product-layout">
+                {/* Image */}
+                <div className="admin-product-thumb-wrap">
                   {product.images?.[0] ? (
-                    <img src={product.images[0]} alt={product.name} className="w-24 h-24 object-cover rounded-xl" />
+                    <img
+                      src={product.images[0]}
+                      alt={product.name}
+                      className="admin-product-thumb"
+                    />
                   ) : (
-                    <div className="w-24 h-24 bg-gray-200 rounded-xl flex items-center justify-center">
-                      <span className="text-gray-500">📦</span>
+                    <div className="admin-product-thumb-empty">
+                      <span>📦</span>
                     </div>
                   )}
                 </div>
 
-                {/* Product Details */}
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-2xl font-bold mb-2 group-hover:text-blue-600 transition-colors">
-                    {product.name}
-                  </h3>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-4">
+                {/* Details */}
+                <div className="admin-product-main">
+                  <h3 className="admin-product-title">{product.name}</h3>
+
+                  <div className="admin-product-meta-grid">
                     <div>
-                      <span className="text-gray-500">Price:</span>
-                      <div className="font-semibold text-lg">₹{product.price}</div>
+                      <span className="admin-label">Price:</span>
+                      <div className="admin-meta-strong">₹{product.price}</div>
                     </div>
                     <div>
-                      <span className="text-gray-500">Stock:</span>
-                      <div className={product.stock > 0 ? 'text-green-600' : 'text-red-600 font-semibold'}>
+                      <span className="admin-label">Stock:</span>
+                      <div
+                        className={
+                          product.stock > 0
+                            ? 'admin-stock-positive'
+                            : 'admin-stock-negative'
+                        }
+                      >
                         {product.stock} units
                       </div>
                     </div>
                     <div>
-                      <span className="text-gray-500">Category:</span>
-                      <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
+                      <span className="admin-label">Category:</span>
+                      <span className="admin-badge-blue">
                         {product.category}
                       </span>
                     </div>
                     <div>
-                      <span className="text-gray-500">Brand:</span>
-                      <span className="font-medium">{product.brand || 'N/A'}</span>
+                      <span className="admin-label">Brand:</span>
+                      <span className="admin-meta-strong">
+                        {product.brand || 'N/A'}
+                      </span>
                     </div>
                   </div>
-                  <p className="text-gray-600 mb-4 line-clamp-2">{product.description}</p>
+
+                  <p className="admin-product-description">
+                    {product.description}
+                  </p>
                 </div>
 
                 {/* Actions */}
-                <div className="flex flex-col sm:flex-row gap-3 self-start lg:self-center">
-                  <Link 
+                <div className="admin-product-actions">
+                  <Link
                     to={`/admin/products/edit/${product._id}`}
-                    className="btn bg-blue-500 hover:bg-blue-600 px-6 py-2"
+                    className="btn-row edit"
                   >
                     ✏️ Edit
                   </Link>
-                  <button 
+                  <button
                     onClick={() => handleDelete(product._id)}
-                    className="btn bg-red-500 hover:bg-red-600 px-6 py-2"
+                    className="btn-row delete"
                   >
                     🗑️ Delete
                   </button>

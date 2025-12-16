@@ -1,4 +1,3 @@
-// src/components/Navbar.jsx
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
@@ -30,37 +29,11 @@ const Navbar = ({ filters, onFilterChange }) => {
 
   return (
     <header className="fk-navbar">
-      {/* Big mobile search bar under top nav, like Flipkart */}
-{/* <div className="fk-mobile-search-bar">
-  <form
-    className="fk-mobile-search-form"
-    onSubmit={(e) => {
-      e.preventDefault();
-      onFilterChange('page', 1);
-      if (location.pathname !== '/') navigate('/');
-    }}
-  >
-    <input
-      type="text"
-      placeholder="Search for Products"
-      value={filters?.search || ''}
-      onChange={(e) => onFilterChange('search', e.target.value)}
-    />
-    <button type="submit">🔍</button>
-  </form>
-</div> */}
-
       <div className="fk-navbar-inner">
         {/* Logo */}
-        <Link
-          to="/"
-          className="fk-logo"
-          onClick={() => setMobileOpen(false)}
-        >
-          🐟 <span>AquaStore</span>
-        </Link>
+        <Link to="/" className="fk-logo">🐟 <span>AquaStore</span></Link>
 
-        {/* Search: ALWAYS visible (desktop + mobile) */}
+        {/* Search Bar (always visible) */}
         <form className="fk-search-wrapper" onSubmit={handleSearchSubmit}>
           <select
             className="fk-search-select"
@@ -79,110 +52,38 @@ const Navbar = ({ filters, onFilterChange }) => {
             value={filters?.search || ''}
             onChange={(e) => onFilterChange('search', e.target.value)}
           />
-          <button className="fk-search-btn" type="submit">
-            🔍
-          </button>
+          <button className="fk-search-btn" type="submit">🔍</button>
         </form>
 
-        {/* Desktop right nav */}
-        <nav className="fk-nav-links">
-          <Link to="/" className="fk-nav-link">Home</Link>
+        {/* Hamburger */}
+        <button className="fk-hamburger" onClick={() => setMobileOpen(prev => !prev)}>
+          {mobileOpen ? '✕' : '☰'}
+        </button>
 
+        {/* Nav Links */}
+        <nav className={`fk-nav-links ${mobileOpen ? 'mobile-open' : ''}`}>
+          <Link to="/" className="fk-nav-link" onClick={() => setMobileOpen(false)}>Home</Link>
           {user ? (
             <>
-              {user.role !== 'admin' && (
-                <Link to="/cart" className="fk-nav-link fk-cart-link">
-                  🛒 Cart {totalItems > 0 ? `(${totalItems})` : ''}
-                </Link>
-              )}
-              <Link to="/profile" className="fk-nav-link">Profile</Link>
-              <Link to="/orders" className="fk-nav-link">Orders</Link>
-
+              {user.role !== 'admin' && <Link to="/cart" className="fk-nav-link" onClick={() => setMobileOpen(false)}>🛒 Cart {totalItems > 0 ? `(${totalItems})` : ''}</Link>}
+              <Link to="/profile" className="fk-nav-link" onClick={() => setMobileOpen(false)}>Profile</Link>
+              <Link to="/orders" className="fk-nav-link" onClick={() => setMobileOpen(false)}>Orders</Link>
               {user.role === 'admin' && (
                 <>
-                  <Link to="/admin" className="fk-nav-link">Admin</Link>
-                  <Link to="/admin/products" className="fk-nav-link">Products</Link>
+                  <Link to="/admin" className="fk-nav-link" onClick={() => setMobileOpen(false)}>Admin</Link>
+                  <Link to="/admin/products" className="fk-nav-link" onClick={() => setMobileOpen(false)}>Products</Link>
                 </>
               )}
-
-              <button
-                type="button"
-                className="fk-logout-btn"
-                onClick={handleLogout}
-              >
-                Logout
-              </button>
+              <button className="fk-logout-btn" onClick={handleLogout}>Logout</button>
             </>
           ) : (
             <>
-              <Link to="/login" className="fk-nav-link">Login</Link>
-              <Link to="/register" className="fk-nav-link">Register</Link>
+              <Link to="/login" className="fk-nav-link" onClick={() => setMobileOpen(false)}>Login</Link>
+              <Link to="/register" className="fk-nav-link" onClick={() => setMobileOpen(false)}>Register</Link>
             </>
           )}
         </nav>
-
-        {/* Mobile hamburger (only toggles nav items, NOT search) */}
-        <button
-          type="button"
-          className="fk-hamburger"
-          onClick={() => setMobileOpen(prev => !prev)}
-        >
-          {mobileOpen ? '✕' : '☰'}
-        </button>
       </div>
-
-      {/* Mobile dropdown for nav items (search stays above) */}
-      {mobileOpen && (
-        <div className="fk-mobile-menu">
-          <div className="fk-mobile-links">
-            <Link to="/" onClick={() => setMobileOpen(false)}>Home</Link>
-
-            {user ? (
-              <>
-                {user.role !== 'admin' && (
-                  <Link to="/cart" onClick={() => setMobileOpen(false)}>
-                    🛒 Cart {totalItems > 0 ? `(${totalItems})` : ''}
-                  </Link>
-                )}
-                <Link to="/profile" onClick={() => setMobileOpen(false)}>
-                  Profile
-                </Link>
-                <Link to="/orders" onClick={() => setMobileOpen(false)}>
-                  Orders
-                </Link>
-
-                {user.role === 'admin' && (
-                  <>
-                    <Link to="/admin" onClick={() => setMobileOpen(false)}>
-                      Admin
-                    </Link>
-                    <Link to="/admin/products" onClick={() => setMobileOpen(false)}>
-                      Products
-                    </Link>
-                  </>
-                )}
-
-                <button
-                  type="button"
-                  className="fk-mobile-logout-btn"
-                  onClick={handleLogout}
-                >
-                  Logout
-                </button>
-              </>
-            ) : (
-              <>
-                <Link to="/login" onClick={() => setMobileOpen(false)}>
-                  Login
-                </Link>
-                <Link to="/register" onClick={() => setMobileOpen(false)}>
-                  Register
-                </Link>
-              </>
-            )}
-          </div>
-        </div>
-      )}
     </header>
   );
 };

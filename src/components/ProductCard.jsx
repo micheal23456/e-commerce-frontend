@@ -10,12 +10,10 @@ const ProductCard = ({ product, onBuyNow }) => {
   const handleAddToCart = (e) => {
     e.preventDefault();
     e.stopPropagation();
-
     if (!user) {
       alert('🔒 Please login to add to cart!');
       return;
     }
-
     dispatch(addToCart(product));
     alert('✅ Added to cart!');
   };
@@ -35,73 +33,46 @@ const ProductCard = ({ product, onBuyNow }) => {
   return (
     <Link to={`/products/${product._id}`} className="fk-product-card">
       {/* Image */}
-      <div className="fk-product-thumb">
+      <div className="fk-product-image">
         <img
           src={product.images?.[0] || '/api/placeholder/300/300'}
           alt={product.name}
         />
       </div>
 
-      {/* Content */}
-      <div className="fk-product-body">
-        {/* Title */}
-        <h2 className="fk-product-title">{product.name}</h2>
-
-        {/* Brand / category row */}
-        <h4 className="fk-product-meta">
+      {/* Product Info */}
+      <div className="fk-product-info">
+        <h3 className="fk-product-title">{product.name}</h3>
+        <p className="fk-product-brand-category">
           {product.brand && <span>{product.brand}</span>}
-          {product.category && <span>• {product.category}</span>}
-        </h4>
+          {product.category && <span> • {product.category}</span>}
+        </p>
+        <p className="fk-product-desc">{product.description}</p>
 
-        {/* Short description */}
-        <h4 className="fk-product-desc">
-          {product.description}
-        </h4>
-
-        {/* Price block like Flipkart */}
-        <div className="fk-product-price-row">
-          <span className="fk-product-price">
-            ₹{product.price.toLocaleString()}
-          </span>
-
+        {/* Price Section */}
+        <div className="fk-product-price-section">
+          <span className="fk-product-price">₹{product.price.toLocaleString()}</span>
           {product.originalPrice && (
             <>
-              <span className="fk-product-mrp">
-                ₹{product.originalPrice.toLocaleString()}
-              </span>
-              {discount > 0 && (
-                <span className="fk-product-off">{discount}% off</span>
-              )}
+              <span className="fk-product-mrp">₹{product.originalPrice.toLocaleString()}</span>
+              {discount > 0 && <span className="fk-product-off">{discount}% OFF</span>}
             </>
           )}
         </div>
 
-        {/* Stock label */}
-        {product.stock === 0 && (
-          <div className="fk-product-stock fk-product-stock-out">
-            Out of stock
-          </div>
-        )}
+        {/* Stock Status */}
+        {product.stock === 0 && <p className="fk-product-stock fk-out-of-stock">Out of Stock</p>}
         {product.stock > 0 && product.stock < 10 && (
-          <div className="fk-product-stock fk-product-stock-low">
-            Only {product.stock} left
-          </div>
+          <p className="fk-product-stock fk-low-stock">Only {product.stock} left!</p>
         )}
 
-        {/* Buttons row */}
+        {/* Action Buttons */}
         <div className="fk-product-actions">
-          <button
-            onClick={handleBuyNowClick}
-            className="fk-btn-primary"
-          >
+          <button onClick={handleBuyNowClick} className="fk-btn fk-btn-buy">
             {user ? 'BUY NOW' : 'LOGIN TO BUY'}
           </button>
-
           {product.stock > 0 && (
-            <button
-              onClick={handleAddToCart}
-              className="fk-btn-secondary"
-            >
+            <button onClick={handleAddToCart} className="fk-btn fk-btn-cart">
               ADD TO CART
             </button>
           )}

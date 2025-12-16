@@ -46,8 +46,6 @@ const AdminProductForm = () => {
         isActive: p.isActive ?? true,
         tags: Array.isArray(p.tags) ? p.tags.join(', ') : '',
       });
-      // existing images/video can be shown separately if you want;
-      // for now, new uploads will replace on backend side as you define.
     } catch (err) {
       alert('Failed to load product');
     }
@@ -76,7 +74,6 @@ const AdminProductForm = () => {
     try {
       const send = new FormData();
 
-      // normal fields
       Object.entries(formData).forEach(([key, value]) => {
         if (value !== '' && value !== null && value !== undefined) {
           if (key === 'isFeatured' || key === 'isActive') {
@@ -93,12 +90,10 @@ const AdminProductForm = () => {
         }
       });
 
-      // images
       imageFiles.forEach(file => {
         send.append('images', file);
       });
 
-      // video file
       if (videoFile) {
         send.append('video', videoFile);
       }
@@ -132,15 +127,7 @@ const AdminProductForm = () => {
 
       <form onSubmit={handleSubmit} className="admin-form">
         {/* top fields */}
-        <div
-          className="admin-form-field-grid"
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit,minmax(240px,1fr))',
-            gap: '14px',
-            marginBottom: 16,
-          }}
-        >
+        <div className="admin-form-field-grid">
           <div className="admin-form-field">
             <label className="admin-form-label">Name *</label>
             <input
@@ -251,14 +238,7 @@ const AdminProductForm = () => {
         </div>
 
         {/* media + flags */}
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'minmax(0,1.1fr) minmax(0,1fr)',
-            gap: 16,
-            marginTop: 12,
-          }}
-        >
+        <div className="admin-form-media-grid">
           <div>
             <div className="admin-form-field">
               <label className="admin-form-label">Images</label>
@@ -269,7 +249,7 @@ const AdminProductForm = () => {
                 onChange={handleImagesChange}
                 className="admin-form-input"
               />
-              <p style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: 4 }}>
+              <p className="admin-form-hint">
                 Select one or more product images.
               </p>
             </div>
@@ -282,7 +262,7 @@ const AdminProductForm = () => {
                 onChange={(e) => setVideoFile(e.target.files[0] || null)}
                 className="admin-form-input"
               />
-              <p style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: 4 }}>
+              <p className="admin-form-hint">
                 Optional short video showcasing the product.
               </p>
             </div>
@@ -302,21 +282,13 @@ const AdminProductForm = () => {
 
             <div className="admin-form-field" style={{ marginTop: 8 }}>
               <label className="admin-form-label">Flags</label>
-              <div
-                style={{
-                  display: 'flex',
-                  gap: 16,
-                  fontSize: '0.9rem',
-                  marginTop: 4,
-                }}
-              >
+              <div className="admin-flags">
                 <label>
                   <input
                     type="checkbox"
                     name="isFeatured"
                     checked={formData.isFeatured}
                     onChange={handleChange}
-                    style={{ marginRight: 4 }}
                   />
                   Featured
                 </label>
@@ -326,7 +298,6 @@ const AdminProductForm = () => {
                     name="isActive"
                     checked={formData.isActive}
                     onChange={handleChange}
-                    style={{ marginRight: 4 }}
                   />
                   Active
                 </label>
@@ -336,7 +307,7 @@ const AdminProductForm = () => {
         </div>
 
         {/* actions */}
-        <div style={{ display: 'flex', gap: 10, marginTop: 18 }}>
+        <div className="admin-actions">
           <button
             type="submit"
             disabled={loading}
@@ -348,18 +319,7 @@ const AdminProductForm = () => {
 
           <Link
             to="/admin/products"
-            style={{
-              flex: 1,
-              textAlign: 'center',
-              padding: '8px 0',
-              borderRadius: 4,
-              border: '1px solid #9ca3af',
-              background: '#f3f4f6',
-              fontWeight: 600,
-              fontSize: '0.9rem',
-              color: '#374151',
-              textDecoration: 'none',
-            }}
+            className="admin-cancel-btn"
           >
             Cancel
           </Link>
