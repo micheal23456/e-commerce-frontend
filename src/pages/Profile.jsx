@@ -11,24 +11,44 @@ const Profile = () => {
     dispatch(getMe());
   }, [dispatch]);
 
-  if (loading) return <div className="loading">Loading profile...</div>;
+  if (loading) {
+    return <div className="products-loading">Loading profile...</div>;
+  }
 
   return (
-    <div className="profile container">
-      <div className="grid grid-cols-3 gap-8">
-        <div className="col-span-1 card">
-          <h2 className="mb-4">Profile</h2>
-          <div className="space-y-3">
-            <p><strong>Name:</strong> {user?.name}</p>
-            <p><strong>Email:</strong> {user?.email}</p>
-            <p><strong>Role:</strong> <span className={`badge ${user?.role === 'admin' ? 'badge-admin' : 'badge-user'}`}>
-              {user?.role}
-            </span></p>
-          </div>
-        </div>
-        
-        <div className="col-span-2">
-          <Orders />
+    <div className="page">
+      <div className="profile-page">
+        <div className="profile-layout">
+          {/* Left: nicer profile card */}
+          <section className="profile-card">
+            <h2 className="profile-title">{user?.name || 'Your profile'}</h2>
+            <p className="profile-subtitle">
+              Manage your account details and see your recent activity.
+            </p>
+
+            <p className="profile-row">
+              <span className="profile-row-label">Email</span>
+              <span>{user?.email}</span>
+            </p>
+
+            <p className="profile-row">
+              <span className="profile-row-label">Role</span>
+              <span
+                className={
+                  'profile-role-pill ' +
+                  (user?.role === 'admin' ? 'admin' : 'user')
+                }
+              >
+                {user?.role}
+              </span>
+            </p>
+          </section>
+
+          {/* Right: orders list in light card */}
+          <section className="profile-orders-card">
+            <h2 className="orders-section-title">Your Orders</h2>
+            <Orders />
+          </section>
         </div>
       </div>
     </div>

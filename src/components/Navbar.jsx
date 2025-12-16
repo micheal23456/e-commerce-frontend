@@ -1,269 +1,189 @@
+// src/components/Navbar.jsx
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '../slices/authSlice';
 import { clearCart } from '../slices/cartSlice';
 
-const Navbar = () => {
+const Navbar = ({ filters, onFilterChange }) => {
   const { user } = useSelector(state => state.auth);
   const { totalItems } = useSelector(state => state.cart);
   const dispatch = useDispatch();
+  const location = useLocation();
   const navigate = useNavigate();
-  const [open, setOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  const isHome = location.pathname === '/';
 
   const handleLogout = () => {
     dispatch(logout());
     dispatch(clearCart());
     navigate('/');
-    setOpen(false);
+    setMobileOpen(false);
+  };
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    onFilterChange('page', 1);
+    if (!isHome) navigate('/');
   };
 
   return (
-    <nav className={`navbar ${open ? 'open' : ''}`}>
-      <style jsx>{`
-        .navbar {
-          position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          height: 70px;
-          background: #2874f0;
-          color: #fff;
-          z-index: 1000;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.25);
-        }
+    <header className="fk-navbar">
+      {/* Big mobile search bar under top nav, like Flipkart */}
+{/* <div className="fk-mobile-search-bar">
+  <form
+    className="fk-mobile-search-form"
+    onSubmit={(e) => {
+      e.preventDefault();
+      onFilterChange('page', 1);
+      if (location.pathname !== '/') navigate('/');
+    }}
+  >
+    <input
+      type="text"
+      placeholder="Search for Products"
+      value={filters?.search || ''}
+      onChange={(e) => onFilterChange('search', e.target.value)}
+    />
+    <button type="submit">🔍</button>
+  </form>
+</div> */}
 
-        .nav-inner {
-          max-width: 1350px;
-          height: 100%;
-          margin: 0 auto;
-          padding: 0 20px;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 20px;
-        }
-
-        .logo {
-          font-size: 1.7rem;
-          font-weight: 800;
-          text-decoration: none;
-          color: #fff;
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          white-space: nowrap;
-        }
-
-        .nav-links {
-          display: flex;
-          align-items: center;
-          gap: 1.5rem;
-          font-size: 0.95rem;
-          font-weight: 500;
-        }
-
-        .nav-links a {
-          color: #fff;
-          text-decoration: none;
-          position: relative;
-          padding: 4px 0;
-        }
-
-        .nav-links a::after {
-          content: '';
-          position: absolute;
-          left: 0;
-          bottom: -2px;
-          width: 0;
-          height: 2px;
-          background: #ffe11b;
-          transition: width 0.2s ease;
-        }
-
-        .nav-links a:hover::after {
-          width: 100%;
-        }
-
-        .cart-link {
-          font-weight: 600;
-        }
-
-        .logout-btn {
-          border: 1px solid #fff;
-          background: transparent;
-          color: #fff;
-          padding: 6px 14px;
-          border-radius: 4px;
-          font-size: 0.85rem;
-          font-weight: 600;
-          cursor: pointer;
-          transition: all 0.2s ease;
-        }
-
-        .logout-btn:hover {
-          background: rgba(255,255,255,0.15);
-        }
-
-        /* Hamburger button (mobile) */
-        .hamburger {
-          display: none;
-          width: 32px;
-          height: 32px;
-          border-radius: 4px;
-          border: 1px solid rgba(255,255,255,0.5);
-          background: transparent;
-          color: #fff;
-          font-size: 1.2rem;
-          align-items: center;
-          justify-content: center;
-          cursor: pointer;
-        }
-
-        /* Mobile menu container */
-        .mobile-menu {
-          display: none;
-        }
-
-        /* ---------- Responsive ---------- */
-        @media (max-width: 768px) {
-          .nav-inner {
-            padding: 0 12px;
-          }
-
-          .nav-links {
-            display: none;
-          }
-
-          .hamburger {
-            display: flex;
-          }
-
-          .navbar.open .mobile-menu {
-            display: block;
-          }
-
-          .mobile-menu {
-            position: fixed;
-            top: 70px;
-            left: 0;
-            right: 0;
-            background: #2874f0;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-            padding: 12px 16px 16px;
-          }
-
-          .mobile-links {
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-          }
-
-          .mobile-links a {
-            color: #fff;
-            text-decoration: none;
-            font-size: 0.95rem;
-            font-weight: 500;
-          }
-
-          .mobile-links .logout-btn {
-            width: 100%;
-            text-align: center;
-            margin-top: 8px;
-          }
-        }
-      `}</style>
-
-      <div className="nav-inner">
-        <Link to="/" className="logo">
-          🐟 AquaStore
+      <div className="fk-navbar-inner">
+        {/* Logo */}
+        <Link
+          to="/"
+          className="fk-logo"
+          onClick={() => setMobileOpen(false)}
+        >
+          🐟 <span>AquaStore</span>
         </Link>
 
-        {/* Desktop links */}
-        <div className="nav-links">
-          <Link to="/">Home</Link>
+        {/* Search: ALWAYS visible (desktop + mobile) */}
+        <form className="fk-search-wrapper" onSubmit={handleSearchSubmit}>
+          <select
+            className="fk-search-select"
+            value={filters?.category || ''}
+            onChange={(e) => onFilterChange('category', e.target.value)}
+          >
+            <option value="">All</option>
+            <option value="aquarium">Aquariums</option>
+            <option value="fish">Fish Food</option>
+            <option value="accessories">Accessories</option>
+          </select>
+          <input
+            className="fk-search-input"
+            type="text"
+            placeholder="Search for aquariums, fish food, accessories..."
+            value={filters?.search || ''}
+            onChange={(e) => onFilterChange('search', e.target.value)}
+          />
+          <button className="fk-search-btn" type="submit">
+            🔍
+          </button>
+        </form>
+
+        {/* Desktop right nav */}
+        <nav className="fk-nav-links">
+          <Link to="/" className="fk-nav-link">Home</Link>
 
           {user ? (
             <>
               {user.role !== 'admin' && (
-                <Link to="/cart" className="cart-link">
-                  Cart ({totalItems})
+                <Link to="/cart" className="fk-nav-link fk-cart-link">
+                  🛒 Cart {totalItems > 0 ? `(${totalItems})` : ''}
                 </Link>
               )}
-              <Link to="/profile">Profile</Link>
-              {user.role === 'admin' && <Link to="/admin">Admin</Link>}
-              {user.role === 'admin' && (
-                <Link to="/admin/products/create">➕ Create</Link>
-              )}
-              <button onClick={handleLogout} className="logout-btn">
-                Logout
-              </button>
-            </>
-          ) : (
-            <>
-              <Link to="/login">Login</Link>
-              <Link to="/register">Register</Link>
-            </>
-          )}
-        </div>
+              <Link to="/profile" className="fk-nav-link">Profile</Link>
+              <Link to="/orders" className="fk-nav-link">Orders</Link>
 
-        {/* Hamburger for mobile */}
-        <button
-          className="hamburger"
-          onClick={() => setOpen(prev => !prev)}
-        >
-          {open ? '✕' : '☰'}
-        </button>
-      </div>
-
-      {/* Mobile dropdown */}
-      <div className="mobile-menu">
-        <div className="mobile-links">
-          <Link to="/" onClick={() => setOpen(false)}>Home</Link>
-
-          {user ? (
-            <>
-              {user.role !== 'admin' && (
-                <Link to="/cart" onClick={() => setOpen(false)}>
-                  Cart ({totalItems})
-                </Link>
-              )}
-              <Link to="/profile" onClick={() => setOpen(false)}>
-                Profile
-              </Link>
               {user.role === 'admin' && (
-                <Link to="/admin" onClick={() => setOpen(false)}>
-                  Admin
-                </Link>
+                <>
+                  <Link to="/admin" className="fk-nav-link">Admin</Link>
+                  <Link to="/admin/products" className="fk-nav-link">Products</Link>
+                </>
               )}
-              {user.role === 'admin' && (
-                <Link
-                  to="/admin/products/create"
-                  onClick={() => setOpen(false)}
-                >
-                  ➕ Create
-                </Link>
-              )}
+
               <button
+                type="button"
+                className="fk-logout-btn"
                 onClick={handleLogout}
-                className="logout-btn"
               >
                 Logout
               </button>
             </>
           ) : (
             <>
-              <Link to="/login" onClick={() => setOpen(false)}>
-                Login
-              </Link>
-              <Link to="/register" onClick={() => setOpen(false)}>
-                Register
-              </Link>
+              <Link to="/login" className="fk-nav-link">Login</Link>
+              <Link to="/register" className="fk-nav-link">Register</Link>
             </>
           )}
-        </div>
+        </nav>
+
+        {/* Mobile hamburger (only toggles nav items, NOT search) */}
+        <button
+          type="button"
+          className="fk-hamburger"
+          onClick={() => setMobileOpen(prev => !prev)}
+        >
+          {mobileOpen ? '✕' : '☰'}
+        </button>
       </div>
-    </nav>
+
+      {/* Mobile dropdown for nav items (search stays above) */}
+      {mobileOpen && (
+        <div className="fk-mobile-menu">
+          <div className="fk-mobile-links">
+            <Link to="/" onClick={() => setMobileOpen(false)}>Home</Link>
+
+            {user ? (
+              <>
+                {user.role !== 'admin' && (
+                  <Link to="/cart" onClick={() => setMobileOpen(false)}>
+                    🛒 Cart {totalItems > 0 ? `(${totalItems})` : ''}
+                  </Link>
+                )}
+                <Link to="/profile" onClick={() => setMobileOpen(false)}>
+                  Profile
+                </Link>
+                <Link to="/orders" onClick={() => setMobileOpen(false)}>
+                  Orders
+                </Link>
+
+                {user.role === 'admin' && (
+                  <>
+                    <Link to="/admin" onClick={() => setMobileOpen(false)}>
+                      Admin
+                    </Link>
+                    <Link to="/admin/products" onClick={() => setMobileOpen(false)}>
+                      Products
+                    </Link>
+                  </>
+                )}
+
+                <button
+                  type="button"
+                  className="fk-mobile-logout-btn"
+                  onClick={handleLogout}
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <Link to="/login" onClick={() => setMobileOpen(false)}>
+                  Login
+                </Link>
+                <Link to="/register" onClick={() => setMobileOpen(false)}>
+                  Register
+                </Link>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+    </header>
   );
 };
 
